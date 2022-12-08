@@ -61,7 +61,7 @@ const blick = {
       def: ''
     },
     rotate: {
-      prop: 'rorate',
+      prop: 'rotate',
       def: 'deg'
     },
     translate: {
@@ -108,32 +108,74 @@ const blick = {
     },
     w: {
       prop: 'width',
-      vals: { full: '100%', half: '50%' },
+      vals: {
+        full: '100%',
+        half: '50%',
+        min:'min-content',
+        fit:'fit-content',
+        max:'max-content',
+        screen:'100vw'
+      },
       def: 'px'
     },
     h: {
       prop: 'height',
-      vals: { full: '100%', half: '50%' },
+      vals: {
+        full: '100%',
+        half: '50%',
+        min:'min-content',
+        fit:'fit-content',
+        max:'max-content',
+        screen:'100vh'
+      },
       def: 'px'
     },
     minW: {
       prop: 'min-width',
-      vals: { full: '100%', half: '50%' },
+      vals: {
+        full: '100%',
+        half: '50%',
+        min:'min-content',
+        fit:'fit-content',
+        max:'max-content',
+        screen:'100vw'
+      },
       def: 'px'
     },
     minH: {
       prop: 'min-height',
-      vals: { full: '100%', half: '50%' },
+      vals: {
+        full: '100%',
+        half: '50%',
+        min:'min-content',
+        fit:'fit-content',
+        max:'max-content',
+        screen:'100vh'
+      },
       def: 'px'
     },
     maxW: {
       prop: 'max-width',
-      vals: { full: '100%', half: '50%' },
+      vvals: {
+        full: '100%',
+        half: '50%',
+        min:'min-content',
+        fit:'fit-content',
+        max:'max-content',
+        screen:'100vw'
+      },
       def: 'px'
     },
     maxH: {
       prop: 'max-height',
-      vals: { full: '100%', half: '50%' },
+      vals: {
+        full: '100%',
+        half: '50%',
+        min:'min-content',
+        fit:'fit-content',
+        max:'max-content',
+        screen:'100vh'
+      },
       def: 'px'
     },
     hue: {
@@ -145,13 +187,13 @@ const blick = {
       prop: 'display',
     },
     hide: {
-      one: "display:none"
+      one: "display:none!"
     },
     pos: {
       prop: "position"
     },
     center: {
-      one: "margin:0 auto"
+      one: "margin:auto"
     },
     invert: {
       one: "filter:invert()"
@@ -314,19 +356,11 @@ const blick = {
       prop: 'filter:sepia(',
       def: '%)'
     },
-    resize: {
-      prop: 'resize',
-      vals: {
-        x: 'horizontal',
-        y: 'vertical',
-        both: 'both'
-      }
-    },
     pointer: {
       one:'cursor:pointer'
     },
     sharp: {
-      one:'border-radius:0!important'
+      one:'border-radius:0!'
     },
     fsz: {
       prop: 'font-size',
@@ -356,9 +390,17 @@ const blick = {
     decorate:{
       prop: 'text-decoration'
     },
+    tdc:{
+      prop: 'text-decoration'
+    },
     outline:{
       prop: 'outline',
       def:'px'
+    },
+    grad: {
+      func:true,
+      prop: 'background:linear-gradient',
+      def:'deg'
     },
   },
   flex: {
@@ -371,21 +413,29 @@ const blick = {
     },
     col: {
       one: 'flex-direction:column',
-      prop: 'flex-direction:column;align-items',
+      // prop: 'flex-direction:column;align-items',
       vals: {
-        start: 'flex-start',
-        center: 'center',
-        end: 'flex-end'
+        start:  'flex-direction:column;align-items:flex-start',
+        center: 'flex-direction:column;align-items:center',
+        end:    'flex-direction:column;align-items:flex-end',
+        rev:    'flex-direction:column-reverse'
       }
     },
     row: {
       one: 'flex-direction:row',
-      prop: 'flex-direction:row;justify-content',
+      // prop: 'flex-direction:row;justify-content',
       vals: {
-        start: 'flex-start',
-        center: 'center',
-        end: 'flex-end'
+        start:  'flex-direction:row;justify-content:flex-start',
+        center: 'flex-direction:row;justify-content:center',
+        end:    'flex-direction:row;justify-content:flex-end',
+        rev:    'flex-direction:row-reverse'
       }
+    },
+    colRev: {
+      one: 'flex-direction:column-reverse',
+    },
+    rowRev: {
+      one: 'flex-direction:row-reverse',
     },
     center: {
       one: 'justify-content:center;align-items:center'
@@ -522,6 +572,9 @@ const blick = {
     bold: {
       one: 'font-weight:bold'
     },
+    bolder: {
+      one: 'font-weight:bolder'
+    },
     thin: {
       one: 'font-weight:lighter'
     },
@@ -600,7 +653,7 @@ const blick = {
     min: '576px',
     max: '1024px'
   },
-  short_state: {
+  states: {
     h: ':hover',
     f: ':focus',
     c: ':checked',
@@ -613,8 +666,19 @@ const blick = {
     after: '::after',
     before: '::before',
   },
+  autoTheme:false,
   layers(e) {
     this.cmps = e
+  },
+  add(a,b,c){
+    if (typeof a == 'string') {
+      this[a][b]=c
+    } else {
+      a.forEach(e=>{
+        this[e[0]][e[1]]=e[2]
+      })
+    }
+    
   }
 }
 
@@ -625,13 +689,19 @@ let cssStr = ''
 const mq = {
   m: '',
   t: '',
-  d: ''
+  d: '',
+  'm-t':'',
+  't-d':'',
+  'm-d':'',
+  dark:''
 }
 
-const BLICK_GCS = (sel, str, st, val) => `[${sel}~="${str}"]${st ? st : ''}{${val}}`
-const BLICK_SHORT_STATE = stt => blick.short_state[stt] ?? ":" + stt
+
+const BLICK_GCS = (sel, str, st, val) => sel == 'class' ? `.${str}${st || ''}{${val}}` : `[${sel}~="${str}"]${st || ''}{${val}}`
+const BLICK_STATES = stt => blick.states[stt] ?? ":" + stt
 
 function BLICK_RENDER() {
+  console.time('blickCss. styles updated. time')
   if (blick.cmps && document.querySelectorAll('[class*="@"],[text*="@"],[flex*="@"],[grid*="@"]').length) {
     Object.entries(blick.cmps).forEach(([model, i]) => {
       Object.entries(i).forEach(([key, el]) => {
@@ -651,22 +721,30 @@ function BLICK_RENDER() {
   document.querySelectorAll('[text]')
     .forEach(el => el.getAttribute('text').replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text')))
 
-  bstl.textContent = '[flex]{display:flex}[grid]{display:grid}.wrapper{margin:auto}' + cssStr +
-    `@media(max-width:${blick.screen.min}){.wrapper{width:100%}${mq.m}}` +
-    `@media(min-width:${blick.screen.min}) and (max-width:${blick.screen.max}){.wrapper{width:${blick.screen.min}}${mq.t}}` +
-    `@media(min-width:${blick.screen.max}){.wrapper{width:${blick.screen.max}}${mq.d}}`
-}
+  bstl.textContent = '[flex]:not([flex~=off]){display:flex}[grid]:not([grid~=off]){display:grid}.wrapper{margin:auto}' + cssStr +
+    `@media(max-width:${blick.screen.min}){.wrapper{width:100%}${mq.m}${mq['m-t']}${mq['m-d']}}` +
+    `@media(min-width:${blick.screen.min}) and (max-width:${blick.screen.max}){.wrapper{width:${blick.screen.min}}${mq.t}${mq['m-t']}${mq['t-d']}}` +
+    `@media(min-width:${blick.screen.max}){.wrapper{width:${blick.screen.max}}${mq.d}${mq['m-d']}${mq['t-d']}}`+
+    (blick.autoTheme ? "@media(prefers-color-scheme:dark){" + mq.dark + "}" : (document.body.classList.contains('theme-dark') ? mq.dark : ''))
+  console.timeEnd('blickCss. styles updated. time')
+  }
 
 function BLICK_GET(str, model) {
-  // console.log(str);
-  let sp = str.split(':')
-  let state = sp[1] ? BLICK_SHORT_STATE(sp[0]) : false
-  let dec = state ? splitIndex(sp[1], '-') : splitIndex(sp[0], '-')
-  let prop = dec[1] ? dec[0] : dec[0]
-  let val = dec[1] ? dec[1] : false
-  let one = !val ? blick[model][prop]?.one : false
-  let sel = blick[model]?.[prop]
+
+  
+
+  let sp    = str.split(':')
+  let state = sp[1]  ? BLICK_STATES(sp[0]) : false
+  let dec   = state  ? BLICK_SPLIT_INDEX(sp[1], '-') : BLICK_SPLIT_INDEX(sp[0], '-')
+  let prop  = dec[1] ? dec[0] : dec[0]
+  let val   = dec[1] ? dec[1] : false
+  let one   = !val   ? blick[model][prop]?.one : false
+  let sel   = blick[model]?.[prop]
   let create
+
+  if (prop == 'grad') {
+    val = `(${BLICK_CALC_VAL(val,prop).split(' ').join(',')})`
+  }
 
   if (['flex', 'grid'].includes(model)) {
     create = one || ((sel?.prop ? sel.prop + (sel.func ? '' : ':') : '') + (BLICK_CALC_VAL(val, prop, model) || 'gap:' + prop + (!isNaN(prop) ? 'px' : '')))
@@ -683,10 +761,11 @@ function BLICK_GET(str, model) {
   }
 
   create = create.includes('_') ? create.replaceAll('_',' ') : create
+  create = create.includes('!') ? create.replaceAll('!','!important') : create
 
+  Array.from(new Set(str.match(/[$/.+:!#()%@]/g)))?.forEach(e=>str=str.replaceAll(e,`\\${e}`))
 
-
-  if ([':m', ':t', ':d'].includes(state)) {
+  if ([':m',':t',':d',':m-t',':m-d',':t-d',':dark'].includes(state)) {
     state = state.slice(1)
     let renStr = BLICK_GCS(model, str, false, create)
     !mq[state].includes(renStr) ? mq[state] += renStr : false
@@ -697,7 +776,8 @@ function BLICK_GET(str, model) {
   }
 }
 
-function splitIndex(elem, ind) {
+
+function BLICK_SPLIT_INDEX(elem, ind) {
   if (elem.includes(ind)) {
     let a = elem.slice(0, elem.indexOf(ind))
     let b = elem.slice(elem.indexOf(ind) + 1)
@@ -706,19 +786,19 @@ function splitIndex(elem, ind) {
 
 }
 
+
 function BLICK_CALC_VAL(u, prop, model = 'class') {
   return u && u.split('+').map(e =>
-    e.includes('/') ? e.split('/')[0] / e.split('/')[1] * 100 + '%'
-      : e.includes('$') ? `var(--${e.slice(1)})`
-        : isNaN(e) ? blick[model]?.[prop]?.vals?.[e] ?? e
-          : e + (blick[model]?.[prop]?.def ?? '')
+    e.includes('/') ? parseFloat((e.split('/')[0] / e.split('/')[1] * 100).toFixed(2)) + '%'
+    : e.includes('$') ? `var(--${e.slice(1)})`
+    : isNaN(e) ? blick[model]?.[prop]?.vals?.[e] ?? e
+    : e + (blick[model]?.[prop]?.def ?? '')
   ).join(' ')
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   BLICK_RENDER()
-  new MutationObserver((e) => {
-    // console.log('upd',e);
+  new MutationObserver(e => {
     BLICK_RENDER()
   }).observe(document.body, {
     attributes: true,
