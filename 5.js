@@ -807,7 +807,7 @@ const blick = {
     after: '::after',
     before: '::before',
   },
-  attrName:{
+  attr:{
     text:'text',
     flex:'flex',
     grid:'grid'
@@ -848,7 +848,7 @@ const BLICK_STATES = stt => blick.states[stt] ?? ":" + stt
 
 function BLICK_RENDER() {
   console.time('blickCss. styles created. time')
-  if (blick.cmps && document.querySelectorAll(`[class*="@"],[${blick.attrName.text}*="@"],[${blick.attrName.grid}*="@"],[${blick.attrName.flex}*="@"]`).length) {
+  if (blick.cmps && document.querySelectorAll(`[class*="@"],[${blick.attr.text}*="@"],[${blick.attr.grid}*="@"],[${blick.attr.flex}*="@"]`).length) {
     Object.entries(blick.cmps).forEach(([model, i]) => {
       Object.entries(i).forEach(([key, el]) => {
         document.querySelectorAll(`[${model}]`).forEach(elem => {
@@ -860,12 +860,12 @@ function BLICK_RENDER() {
 
   document.querySelectorAll(`[class]`)
     .forEach(el => el.getAttribute('class').replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'class')))
-  document.querySelectorAll(`[${blick.attrName.flex}]`)
-    .forEach(el => el.getAttribute(blick.attrName.flex).replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex')))
-  document.querySelectorAll(`[${blick.attrName.grid}]`)
-    .forEach(el => el.getAttribute(blick.attrName.grid).replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid')))
-  document.querySelectorAll(`[${blick.attrName.text}]`)
-    .forEach(el => el.getAttribute(blick.attrName.text).replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text')))
+  document.querySelectorAll(`[${blick.attr.flex}]`)
+    .forEach(el => el.getAttribute(blick.attr.flex).replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex')))
+  document.querySelectorAll(`[${blick.attr.grid}]`)
+    .forEach(el => el.getAttribute(blick.attr.grid).replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid')))
+  document.querySelectorAll(`[${blick.attr.text}]`)
+    .forEach(el => el.getAttribute(blick.attr.text).replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text')))
 
   BLICK_SET_STYLE()
 
@@ -873,7 +873,7 @@ function BLICK_RENDER() {
   }
 
 function BLICK_SET_STYLE() {
-  bstl.textContent = `[${blick.attrName["flex"]}]:not([${blick.attrName["flex"]}~=off]){display:flex}[${blick.attrName["grid"]}]:not([${blick.attrName["grid"]}~=off]){display:grid}.wrapper{margin:auto}` + cssStr +
+  bstl.textContent = `[${blick.attr["flex"]}]:not([${blick.attr["flex"]}~=off]){display:flex}[${blick.attr["grid"]}]:not([${blick.attr["grid"]}~=off]){display:grid}.wrapper{margin:auto}` + cssStr +
   `@media(max-width:${blick.screen.min}){.wrapper{width:100%}${mq.m}${mq['m-t']}${mq['m-d']}}` +
   `@media(min-width:${blick.screen.min}) and (max-width:${blick.screen.max}){.wrapper{width:${blick.screen.min}}${mq.t}${mq['m-t']}${mq['t-d']}}` +
   `@media(min-width:${blick.screen.max}){.wrapper{width:${blick.screen.max}}${mq.d}${mq['m-d']}${mq['t-d']}}`+
@@ -923,11 +923,11 @@ function BLICK_GET(str, model) {
 
     if ([':m',':t',':d',':m-t',':m-d',':t-d',':dark'].includes(state)) {
       state = state.slice(1)
-      let renStr = BLICK_GCS(blick.attrName[model]??'class', str, false, create)
+      let renStr = BLICK_GCS(blick.attr[model]??'class', str, false, create)
       !mq[state].includes(renStr) ? mq[state] += renStr : false
     }
     else {
-      let renStr = BLICK_GCS(blick.attrName[model]??'class', str, state, create)
+      let renStr = BLICK_GCS(blick.attr[model]??'class', str, state, create)
       !cssStr.includes(renStr) ? cssStr += renStr : false
     }
   }
@@ -976,16 +976,16 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!!m.addedNodes.length) {
         m.addedNodes.forEach(g=>{
           g.getAttribute('class')?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'class'))
-          g.getAttribute(blick.attrName.flex)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex'))
-          g.getAttribute(blick.attrName.grid)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid'))
-          g.getAttribute(blick.attrName.text)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text'))
+          g.getAttribute(blick.attr.flex)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex'))
+          g.getAttribute(blick.attr.grid)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid'))
+          g.getAttribute(blick.attr.text)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text'))
         })
       }
       if (m.attributeName) {
         m.target.getAttribute('class'            )?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'class'))
-        m.target.getAttribute(blick.attrName.text)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text'))
-        m.target.getAttribute(blick.attrName.flex)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex'))
-        m.target.getAttribute(blick.attrName.grid)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid'))
+        m.target.getAttribute(blick.attr.text)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text'))
+        m.target.getAttribute(blick.attr.flex)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex'))
+        m.target.getAttribute(blick.attr.grid)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid'))
       }
     })
     BLICK_SET_STYLE()
@@ -994,9 +994,9 @@ document.addEventListener("DOMContentLoaded", () => {
     attributes: true,
     attributeFilter: [
       'class',
-      blick.attrName.flex,
-      blick.attrName.grid,
-      blick.attrName.text
+      blick.attr.flex,
+      blick.attr.grid,
+      blick.attr.text
     ],
     childList: true,
     subtree: true
