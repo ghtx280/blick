@@ -214,6 +214,15 @@ const blick = {
     ingrid:{
       one:'display:inline-grid'
     },
+    uppercase:{
+      one: "text-transform:uppercase"
+    },
+    lowercase:{
+      one: "text-transform:lowercase"
+    },
+    capitalize:{
+      one: "text-transform:capitalize"
+    },
     hide: {
       one: "display:none!"
     },
@@ -411,6 +420,7 @@ const blick = {
       prop: 'font-weight:$',
       def:''
     },
+    
     wsp:{
       prop:'white-space:$'
     },
@@ -679,6 +689,9 @@ const blick = {
     },
   },
   text: {
+    tp:{
+      one:'color:transparent!'
+    },
     cols:{
       prop:'columns:$'
     },
@@ -690,6 +703,9 @@ const blick = {
     },
     bolder: {
       one: 'font-weight:bolder'
+    },
+    wg: {
+      prop: 'font-weight:$'
     },
     thin: {
       one: 'font-weight:lighter'
@@ -739,6 +755,9 @@ const blick = {
     sans: {
       one: 'font-family:var(--font-sans)'
     },
+    font: {
+      prop: 'font-family:$'
+    },
     vertical: {
       one: 'writing-mode:vertical-lr'
     },
@@ -746,7 +765,13 @@ const blick = {
       one: 'word-wrap:break-word'
     },
     shadow: {
-      one: 'text-shadow:3px 3px 2px #0000004d'
+      one: 'text-shadow:3px 3px 2px #0000004d',
+      prop:'text-shadow:$',
+      def:'px',
+    },
+    stroke: {
+      prop:'-webkit-text-stroke:$',
+      def:'px',
     },
     dots: {
       one: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%'
@@ -945,32 +970,30 @@ function BLICK_SPLIT_INDEX(elem, ind) {
 document.addEventListener("DOMContentLoaded", () => {
   BLICK_RENDER()
   new MutationObserver(e => {
+    
     console.time('blickCss. styles updated. time')
     e.forEach(m => {
-      m.addedNodes.forEach(g=>{
-        if (g.getAttribute?.('class')) {
-          g.getAttribute('class').replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'class'))
-          BLICK_SET_STYLE()
-        }
-        if (g.getAttribute?.(blick.attrName.flex)) {
-          g.getAttribute(blick.attrName.flex).replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex'))
-          BLICK_SET_STYLE()
-        }
-        if (g.getAttribute?.(blick.attrName.grid)) {
-          g.getAttribute(blick.attrName.grid).replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid'))
-          BLICK_SET_STYLE()
-        }
-        if (g.getAttribute?.(blick.attrName.text)) {
-          g.getAttribute(blick.attrName.text).replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text'))
-          BLICK_SET_STYLE()
-        }
-      })
+      if (!!m.addedNodes.length) {
+        m.addedNodes.forEach(g=>{
+          g.getAttribute('class')?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'class'))
+          g.getAttribute(blick.attrName.flex)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex'))
+          g.getAttribute(blick.attrName.grid)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid'))
+          g.getAttribute(blick.attrName.text)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text'))
+        })
+      }
+      if (m.attributeName) {
+        m.target.getAttribute('class'            )?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'class'))
+        m.target.getAttribute(blick.attrName.text)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text'))
+        m.target.getAttribute(blick.attrName.flex)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex'))
+        m.target.getAttribute(blick.attrName.grid)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid'))
+      }
     })
+    BLICK_SET_STYLE()
     console.timeEnd('blickCss. styles updated. time')
   }).observe(document.body, {
     attributes: true,
     attributeFilter: [
-      blick.attrName.class,
+      'class',
       blick.attrName.flex,
       blick.attrName.grid,
       blick.attrName.text
