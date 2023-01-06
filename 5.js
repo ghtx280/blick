@@ -165,7 +165,7 @@ const blick = {
     },
     maxW: {
       prop: 'max-width:$',
-      vvals: {
+      vals: {
         full: '100%',
         half: '50%',
         min:'min-content',
@@ -533,6 +533,13 @@ const blick = {
       one:'flex-shrink:1',
       prop: 'flex-shrink:$',
     },
+    break:{
+      prop:'word-break:$',
+      vals:{
+        all:'break-all',
+        keep:'keep-all',
+      }
+    },
   },
   flex: {
     order: {
@@ -828,11 +835,11 @@ const blick = {
   }
 }
 
-const bstl = document.createElement('style')
-document.head.append(bstl)
+const BLICK_STYLE_TAG = document.createElement('style')
+document.head.append(BLICK_STYLE_TAG)
 
-let cssStr = ''
-const mq = {
+let BLICK_STYLE_STRING = ''
+const BLICK_MQ = {
   m: '',
   t: '',
   d: '',
@@ -846,8 +853,8 @@ const mq = {
 const BLICK_GCS = (sel, str, st, val) => sel == 'class' ? `.${str}${st || ''}{${val}}` : `[${sel}~="${str}"]${st || ''}{${val}}`
 const BLICK_STATES = stt => blick.states[stt] ?? ":" + stt
 
-function BLICK_RENDER() {
-  console.time('blickCss. styles created. time')
+function BLICK_RENDER(upd = 'created') {
+  console.time('blickCss. styles '+upd+'. time')
   if (blick.cmps && document.querySelectorAll(`[class*="@"],[${blick.attr.text}*="@"],[${blick.attr.grid}*="@"],[${blick.attr.flex}*="@"]`).length) {
     Object.entries(blick.cmps).forEach(([model, i]) => {
       Object.entries(i).forEach(([key, el]) => {
@@ -869,17 +876,16 @@ function BLICK_RENDER() {
 
   BLICK_SET_STYLE()
 
-  console.timeEnd('blickCss. styles created. time')
+  console.timeEnd('blickCss. styles '+upd+'. time')
   }
 
 function BLICK_SET_STYLE() {
-  bstl.textContent = `[${blick.attr["flex"]}]:not([${blick.attr["flex"]}~=off]){display:flex}[${blick.attr["grid"]}]:not([${blick.attr["grid"]}~=off]){display:grid}.wrapper{margin:auto}` + cssStr +
-  `@media(max-width:${blick.screen.min}){.wrapper{width:100%}${mq.m}${mq['m-t']}${mq['m-d']}}` +
-  `@media(min-width:${blick.screen.min}) and (max-width:${blick.screen.max}){.wrapper{width:${blick.screen.min}}${mq.t}${mq['m-t']}${mq['t-d']}}` +
-  `@media(min-width:${blick.screen.max}){.wrapper{width:${blick.screen.max}}${mq.d}${mq['m-d']}${mq['t-d']}}`+
-  (blick.autoTheme ? "@media(prefers-color-scheme:dark){" + mq.dark + "}" : (document.body.classList.contains('theme-dark') ? mq.dark : ''))
+  BLICK_STYLE_TAG.textContent = `[${blick.attr["flex"]}]:not([${blick.attr["flex"]}~=off]){display:flex}[${blick.attr["grid"]}]:not([${blick.attr["grid"]}~=off]){display:grid}.wrapper{margin:auto}` + BLICK_STYLE_STRING +
+  `@media(max-width:${blick.screen.min}){.wrapper{width:100%}${BLICK_MQ.m}${BLICK_MQ['m-t']}${BLICK_MQ['m-d']}}` +
+  `@media(min-width:${blick.screen.min}) and (max-width:${blick.screen.max}){.wrapper{width:${blick.screen.min}}${BLICK_MQ.t}${BLICK_MQ['m-t']}${BLICK_MQ['t-d']}}` +
+  `@media(min-width:${blick.screen.max}){.wrapper{width:${blick.screen.max}}${BLICK_MQ.d}${BLICK_MQ['m-d']}${BLICK_MQ['t-d']}}`+
+  (blick.autoTheme ? "@media(prefers-color-scheme:dark){" + BLICK_MQ.dark + "}" : (document.body?.classList.contains('theme-dark') ? BLICK_MQ.dark : ''))
 }
-
   
 function BLICK_GET(str, model) {
 
@@ -924,11 +930,11 @@ function BLICK_GET(str, model) {
     if ([':m',':t',':d',':m-t',':m-d',':t-d',':dark'].includes(state)) {
       state = state.slice(1)
       let renStr = BLICK_GCS(blick.attr[model]??'class', str, false, create)
-      !mq[state].includes(renStr) ? mq[state] += renStr : false
+      BLICK_MQ[state] += !BLICK_MQ[state].includes(renStr) ?  renStr : ''
     }
     else {
       let renStr = BLICK_GCS(blick.attr[model]??'class', str, state, create)
-      !cssStr.includes(renStr) ? cssStr += renStr : false
+      BLICK_STYLE_STRING += !BLICK_STYLE_STRING.includes(renStr) ?  renStr : ''
     }
   }
 
@@ -967,30 +973,49 @@ function BLICK_SPLIT_INDEX(elem, ind) {
 
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  BLICK_RENDER()
+// document.addEventListener("DOMContentLoaded", () => {
+   
+  // BLICK_RENDER()
   new MutationObserver(e => {
+    // console.log(e);
+    BLICK_RENDER('updated')
+
+    // console.log(document.querySelectorAll?.(`[class],[${blick.attr.flex}],[${blick.attr.grid}],[${blick.attr.text}]`));
     
-    console.time('blickCss. styles updated. time')
-    e.forEach(m => {
-      if (!!m.addedNodes.length) {
-        m.addedNodes.forEach(g=>{
-          g.getAttribute('class')?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'class'))
-          g.getAttribute(blick.attr.flex)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex'))
-          g.getAttribute(blick.attr.grid)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid'))
-          g.getAttribute(blick.attr.text)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text'))
-        })
-      }
-      if (m.attributeName) {
-        m.target.getAttribute('class'            )?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'class'))
-        m.target.getAttribute(blick.attr.text)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text'))
-        m.target.getAttribute(blick.attr.flex)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex'))
-        m.target.getAttribute(blick.attr.grid)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid'))
-      }
-    })
-    BLICK_SET_STYLE()
-    console.timeEnd('blickCss. styles updated. time')
-  }).observe(document.body, {
+    // console.time('blickCss. styles updated. time')
+    // if (blick.cmps && document.querySelectorAll(`[class*="@"],[${blick.attr.text}*="@"],[${blick.attr.grid}*="@"],[${blick.attr.flex}*="@"]`).length) {
+    //   Object.entries(blick.cmps).forEach(([model, i]) => {
+    //     Object.entries(i).forEach(([key, el]) => {
+    //       document.querySelectorAll(`[${model}]`).forEach(elem => {
+    //         elem.setAttribute(model, elem.getAttribute(model).replaceAll("@" + key, el))
+    //       })
+    //     })
+    //   })
+    // }
+
+    // e.forEach(m => {
+    //   if (!!m.addedNodes.length) {
+    //     m.addedNodes.forEach(g=>{
+
+    //       g.querySelectorAll?.(`[class],[${blick.attr.flex}],[${blick.attr.grid}],[${blick.attr.text}]`)
+    //       .forEach(h=>{
+    //         h.getAttribute?.('class'        )?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'class'))
+    //         h.getAttribute?.(blick.attr.flex)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex'))
+    //         h.getAttribute?.(blick.attr.grid)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid'))
+    //         h.getAttribute?.(blick.attr.text)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text'))
+    //       })
+    //     })
+    //   }
+    //   if (m.attributeName) {
+    //     m.target.getAttribute('class'        )?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'class'))
+    //     m.target.getAttribute(blick.attr.text)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'text'))
+    //     m.target.getAttribute(blick.attr.flex)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'flex'))
+    //     m.target.getAttribute(blick.attr.grid)?.replaceAll(/\s+/g, ' ').trim().split(' ').forEach(e => BLICK_GET(e, 'grid'))
+    //   }
+    // })
+    // BLICK_SET_STYLE()
+    // console.timeEnd('blickCss. styles updated. time')
+  }).observe(document, {
     attributes: true,
     attributeFilter: [
       'class',
@@ -1001,4 +1026,4 @@ document.addEventListener("DOMContentLoaded", () => {
     childList: true,
     subtree: true
   });
-})
+// })
